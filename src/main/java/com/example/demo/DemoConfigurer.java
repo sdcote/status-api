@@ -13,11 +13,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class DemoConfigurer extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/appstatus").permitAll()
-                .antMatchers("/").permitAll()
-                .and()
-                .httpBasic();
+        http.
+                httpBasic().
+            and().
+                authorizeRequests()
+                    .antMatchers(HttpMethod.GET, "/appstatus").permitAll()
+                    .antMatchers(HttpMethod.POST,"/appstatus").hasRole("ADMIN")
+                    .antMatchers("/").permitAll()
+        ;
         super.configure(http);
     }
 
