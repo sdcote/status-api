@@ -27,11 +27,11 @@ public class DemoConfigurer extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authenticationMgr) throws Exception {
         authenticationMgr.inMemoryAuthentication()
-                .withUser("developer").password("secret").authorities("DEVOP")
+                .withUser("devop").password("secret").authorities("DEVOP")
                 .and()
-                .withUser("sysop").password("secret").authorities("SYSOP", "DEVOP")
+                .withUser("sysop").password("secret").authorities("DEVOP", "SYSOP")
                 .and()
-                .withUser("admin").password("secret").authorities("SYSOP", "DEVOP", "ADMIN");
+                .withUser("admin").password("secret").authorities("DEVOP", "SYSOP", "ADMIN");
     }
 
 }
