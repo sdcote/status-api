@@ -58,4 +58,14 @@ public class AppState {
 
     }
 
+    public static String getCurrentUsername() {
+        String retval;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            retval = ((UserDetails)principal).getUsername();
+        } else {
+            retval = principal.toString();
+        }
+        return retval;
+    }
 }
