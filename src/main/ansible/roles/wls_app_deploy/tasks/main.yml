@@ -1,0 +1,28 @@
+---
+- name: create deploy_environment.py
+  template:
+    src=deploy_environment_py.j2
+    dest="{{ deploy_environment_py }}"
+    #owner="{{ oracle_install_user }}"
+    #group="{{ oracle_install_group }}"
+    #mode=0644
+  register: deploy_environment_py_created
+
+- name: copy deployment artifacts
+  copy:
+    src=roles/common/files/weblogic/deploy/
+    dest="{{ domain_application_home }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+  register: deployment_artifacts_copied
+
+#- name: debug registered values
+#  debug:
+#    var={{ item }}
+#  with_items:
+#    - deploy_environment_py_created
+#    - deployment_artifacts_copied
+
+- name: (un)deploy applications
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ wlst_sh }} -loadProperties {{ environment_properties }} {{ deploy_environment_py }}"
+  when: deploy_environment_py_created.changed or deployment_artifacts_copied.changed

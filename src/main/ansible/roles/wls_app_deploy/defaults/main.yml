@@ -1,0 +1,11 @@
+---
+deploy_action: deploy
+deploy_targets: clusterName
+domain_application_home:
+domain_configuration_home:
+domain_name:
+fusion_middleware_home:
+java_home:
+middleware_home:
+node_manager_home:
+weblogic_home:
