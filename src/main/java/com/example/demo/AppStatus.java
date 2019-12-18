@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class AppStatus {
-    private static final String TEMP_FILE = "app.state";
+    private static final String TEMP_FILE = "app.status";
     private static final File STATUS_FILE = new File(System.getProperty("java.io.tmpdir"), TEMP_FILE);
     public static Logger LOGGER = LoggerFactory.getLogger(AppStatus.class);
     private static Status currentStatus;
