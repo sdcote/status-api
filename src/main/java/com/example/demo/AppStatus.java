@@ -14,16 +14,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class AppState {
-    public static final String UNKNOWN = "unknown";
     private static final String TEMP_FILE = "app.state";
-    private static final String STANDBY = "stand-by";
     private static final File STATE_FILE = new File(System.getProperty("java.io.tmpdir"), TEMP_FILE);
     public static Logger LOGGER = LoggerFactory.getLogger(AppState.class);
     private static String currentState;
 
     public static String getState() {
         if (StringUtils.isEmpty(currentState))
-            return UNKNOWN;
+            return State.UNKNOWN.toString();
         else
             return currentState;
     }
@@ -38,7 +36,7 @@ public class AppState {
     }
 
     private static String readState() {
-        String retval = STANDBY;
+        String retval = State.STANDBY.toString();
         try {
             String data = new String(Files.readAllBytes(Paths.get(STATE_FILE.getAbsolutePath())), Charset.defaultCharset());
             AppState.LOGGER.debug("READING: " + STATE_FILE.getAbsolutePath());
@@ -64,10 +62,39 @@ public class AppState {
         String retval;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
-            retval = ((UserDetails)principal).getUsername();
+            retval = ((UserDetails) principal).getUsername();
         } else {
             retval = principal.toString();
         }
         return retval;
+    }
+
+
+    public enum State {
+        READY("ready"),
+        STAGE("stage"),
+        UNKNOWN("unknown"),
+        STANDBY("stand-by");
+        private String value;
+
+        State(String state) {
+            this.value = state;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+        public State getState(String state){
+            State retval = UNKNOWN;
+            if( READY.toString().equalsIgnoreCase(state)){
+                retval = READY;
+            } else if( STAGE.toString().equalsIgnoreCase(state)) {
+                retval = STAGE;
+            } else if( STANDBY.toString().equalsIgnoreCase(state)) {
+                retval = STANDBY;
+            }
+            return retval;
+        }
     }
 }
