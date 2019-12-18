@@ -13,86 +13,76 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class AppState {
+public class AppStatus {
     private static final String TEMP_FILE = "app.state";
-    private static final File STATE_FILE = new File(System.getProperty("java.io.tmpdir"), TEMP_FILE);
-    public static Logger LOGGER = LoggerFactory.getLogger(AppState.class);
-    private static String currentState;
+    private static final File STATUS_FILE = new File(System.getProperty("java.io.tmpdir"), TEMP_FILE);
+    public static Logger LOGGER = LoggerFactory.getLogger(AppStatus.class);
+    private static Status currentStatus;
 
-    public static String getState() {
-        if (StringUtils.isEmpty(currentState))
-            return State.UNKNOWN.toString();
+    public static String getStatus() {
+        if (StringUtils.isEmpty(currentStatus))
+            return Status.STANDBY.toString();
         else
-            return currentState;
+            return currentStatus.toString();
     }
 
-    public static void setState(String state) throws IllegalArgumentException {
-        // Validate and set
-        writeState(state);
+    public static void setStatus(String status) throws IllegalArgumentException {
+       ;currentStatus =  Status.getStatus(status);
+        writeStatus(currentStatus);
     }
 
     public static void init() {
-        currentState = readState();
+        currentStatus = readStatus();
     }
 
-    private static String readState() {
-        String retval = State.STANDBY.toString();
+    private static Status readStatus() {
+        Status retval = Status.STANDBY;
         try {
-            String data = new String(Files.readAllBytes(Paths.get(STATE_FILE.getAbsolutePath())), Charset.defaultCharset());
-            AppState.LOGGER.debug("READING: " + STATE_FILE.getAbsolutePath());
-            retval = data.trim();
+            String data = new String(Files.readAllBytes(Paths.get(STATUS_FILE.getAbsolutePath())), Charset.defaultCharset());
+            AppStatus.LOGGER.debug("READING: " + STATUS_FILE.getAbsolutePath());
+            retval = Status.getStatus(data.trim());
         } catch (Throwable t) {
-            AppState.LOGGER.error("Could not read state from " + STATE_FILE.getAbsolutePath() + " - " + t.getMessage() + " - setting state to '" + retval + "'");
-            writeState(retval); // write the state correctly so we start up without error
+            AppStatus.LOGGER.error("Could not read status from " + STATUS_FILE.getAbsolutePath() + " - " + t.getMessage() + " - setting status to '" + retval + "'");
+            writeStatus(retval); // write the status correctly so we start up without error
         }
         return retval;
     }
 
-    private static void writeState(String state) {
-        try (PrintWriter out = new PrintWriter(new FileWriter(STATE_FILE))) {
-            AppState.LOGGER.debug("Updating status to " + state + " in " + STATE_FILE.getAbsolutePath());
-            out.print(state);
+    private static void writeStatus(Status status) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(STATUS_FILE))) {
+            AppStatus.LOGGER.debug("Updating status to " + status + " in " + STATUS_FILE.getAbsolutePath());
+            out.print(status.toString());
         } catch (Throwable t) {
-            AppState.LOGGER.error("Could not write state to " + STATE_FILE.getAbsolutePath() + " - " + t.getMessage());
+            AppStatus.LOGGER.error("Could not write status to " + STATUS_FILE.getAbsolutePath() + " - " + t.getMessage());
         }
 
     }
 
-    public static String getCurrentUsername() {
-        String retval;
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            retval = ((UserDetails) principal).getUsername();
-        } else {
-            retval = principal.toString();
-        }
-        return retval;
-    }
 
-
-    public enum State {
+    /**
+     * There are only 3 status values, all others are set to "stand-by"
+     */
+    public enum Status {
         READY("ready"),
         STAGE("stage"),
-        UNKNOWN("unknown"),
         STANDBY("stand-by");
         private String value;
 
-        State(String state) {
-            this.value = state;
+        Status(String status) {
+            this.value = status;
         }
 
         @Override
         public String toString() {
             return value;
         }
-        public State getState(String state){
-            State retval = UNKNOWN;
-            if( READY.toString().equalsIgnoreCase(state)){
+
+        public static Status getStatus(String status){
+            Status retval = STANDBY;
+            if( READY.toString().equalsIgnoreCase(status)){
                 retval = READY;
-            } else if( STAGE.toString().equalsIgnoreCase(state)) {
+            } else if( STAGE.toString().equalsIgnoreCase(status)) {
                 retval = STAGE;
-            } else if( STANDBY.toString().equalsIgnoreCase(state)) {
-                retval = STANDBY;
             }
             return retval;
         }

@@ -13,13 +13,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class DemoConfigurer extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.
-                httpBasic().
-            and().
-                authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/appstatus").permitAll()
-                    .antMatchers(HttpMethod.POST,"/appstatus").hasRole("ADMIN")
-                    .antMatchers("/").permitAll()
+        http.httpBasic()
+                .and()
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/appstatus").permitAll()
+                .antMatchers(HttpMethod.POST, "/appstatus").hasRole("ADMIN")
+                .antMatchers("/").permitAll()
         ;
         super.configure(http);
     }
@@ -27,11 +27,11 @@ public class DemoConfigurer extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authenticationMgr) throws Exception {
         authenticationMgr.inMemoryAuthentication()
-                .withUser("devop").password("secret").authorities("DEVOP")
+                .withUser("devop").password("{noop}secret").authorities("ROLE_DEVOP")
                 .and()
-                .withUser("sysop").password("secret").authorities("DEVOP", "SYSOP")
+                .withUser("sysop").password("{noop}secret").authorities("ROLE_DEVOP", "ROLE_SYSOP")
                 .and()
-                .withUser("admin").password("secret").authorities("DEVOP", "SYSOP", "ADMIN");
+                .withUser("admin").password("{noop}secret").authorities("ROLE_DEVOP", "ROLE_SYSOP", "ROLE_ADMIN");
     }
 
 }
