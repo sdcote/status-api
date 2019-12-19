@@ -16,7 +16,15 @@ import java.util.Map;
 
 
 /**
+ * This is the AppStatus controller which simply displays the current status and version of the application when
+ * requested by an anonymous GET request to the "/appstatus" wndpoint.
  *
+ * <p>The status can be changed by sending a POST request to the "/appstatus" endpoint with the name-value pair of
+ * "status":"[value]" in JSON format. Only 3 status values are supported: "ready","stage" and "stand-by". Any other
+ * value submitted will result in a state of "stand-by" being set.</p>
+ *
+ * <p>Setting of the status should be protected in Spring Security configurations limiting access to the "POST" method
+ * on the "/appstatus" endpoint.</p>
  */
 @RestController
 public class AppStatusController {
